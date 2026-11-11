@@ -1,0 +1,27 @@
+name: Build Nitisa FormBuilder
+
+on:
+  workflow_dispatch: # Позволяет запускать сборку вручную из вкладки Actions
+
+jobs:
+  build:
+    runs-on: windows-latest # Windows Server 2022 с Visual Studio 2022
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      # Собираем не всё решение, а только папку Windows,
+      # как рекомендует документация Nitisa.
+      - name: Build Windows solution folder (ReleaseRT | x86)
+        run: msbuild Nitisa.sln /t:Windows /p:Configuration=ReleaseRT /p:Platform=x86 /m
+
+      - name: Upload FormBuilder artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: FormBuilder-ReleaseRT-x86
+          # Путь, где после сборки появится FormBuilder.exe и сопутствующие DLL
+          path: bin\Windows\x86\ReleaseRT\
